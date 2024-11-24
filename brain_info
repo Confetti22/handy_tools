@@ -1,0 +1,21 @@
+#! /home/confetti/miniconda3/envs/napari/bin/python 
+
+
+from pprint import pprint
+import argparse
+from brainglobe_atlasapi import BrainGlobeAtlas
+
+def get_brain_structure_info(name):
+    bg_atlas = BrainGlobeAtlas("allen_mouse_10um", check_latest=False)
+    pprint(bg_atlas.structures[name])
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("name", type=str)
+    args= parser.parse_args()
+    get_brain_structure_info(args.name)
+
+if __name__ == "__main__":
+    main()
+    # Get the structure names

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Check if the correct number of arguments are provided
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <dirpath/filepath> <host_name>:<host_path>"
+  exit 1
+fi
+
+# Get input arguments
+SOURCE_PATH="$1"
+TARGET="$2"
+
+# Create a temporary file for the tar archive
+TMP_ARCHIVE="$(basename "$SOURCE_PATH").tar.gz"
+
+# Pack and compress the source directory or file
+tar -czf "$TMP_ARCHIVE" -C "$(dirname "$SOURCE_PATH")" "$(basename "$SOURCE_PATH")"
+
+# Copy the compressed file to the remote host using scp
+scp "$TMP_ARCHIVE" "$TARGET"
+
+# Extract remote host name and path
+HOST_NAME="${TARGET%%:*}"
+HOST_PATH="${TARGET#*:}"
+echo "host_name is $HOST_NAME, host_path is $HOST_PATH"
+
+# Unpack and uncompress the file on the remote host, then delete the archive
+ssh "$HOST_NAME" "cd $HOST_PATH && tar -xzf $TMP_ARCHIVE && rm $TMP_ARCHIVE"
+
+# Remove the local temporary archive
+rm "$TMP_ARCHIVE"
+
+echo "Transfer and unpacking completed successfully."
